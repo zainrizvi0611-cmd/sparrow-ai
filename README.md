@@ -1,3 +1,4 @@
+
 # SuperNinja — Autonomous ReAct AI Agent
 
 A production-ready, modular autonomous AI agent built on the **ReAct (Reasoning + Acting)** loop architecture. It integrates **local LLM inference** via [Ollama](https://ollama.com), **multiple tools** (web search, sandboxed file I/O, a safe calculator, and a cybersecurity toolkit), **persistent sliding-window memory**, and **structured rotating logging**.
@@ -221,12 +222,12 @@ python main.py
 You'll see the startup banner with the ethics disclaimer, then the REPL prompt:
 
 ```
-========================================================================
+
   SuperNinja — Autonomous ReAct AI Agent
   Model: llama3.2    Endpoint: http://localhost:11434/v1/chat/completions
   ...
   DISCLAIMER: This toolkit is intended exclusively for authorized ...
-========================================================================
+
 
 You>
 ```
@@ -425,7 +426,7 @@ Starts a mock OpenAI-compatible server (`mock_ollama_server.py`) and runs the **
 
 ```bash
 python e2e_test.py
-# Expected: === N assertion(s) passed ===  (exit 0)
+# Expected:  N assertion(s) passed   (exit 0)
 ```
 
 ### Mock server (for manual experimentation)
@@ -472,3 +473,7 @@ This agent includes a cybersecurity toolkit. **Use it only on systems you own or
 - Refuse and clearly state when a request falls outside ethical boundaries.
 
 The mandatory disclaimer is printed at every agent startup and prefixed to all security tool output. Unauthorized access to systems you do not own is illegal and unethical. The developer assumes no liability for misuse.
+
+# sparrow-ai
+Sparrow 
+ 4c7b79653ff417d82e5c4e1e99101152cdb0deb4
