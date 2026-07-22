@@ -30,3 +30,4 @@ shodan>=1.31.0            # Optional OSINT lookups (requires API key in config)
 # Scapy additionally requires libpcap for live capture:
 #   apt install libpcap-dev  (Debian/Ubuntu)
 #   brew install libpcap     (macOS)
+gunicorn
