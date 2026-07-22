@@ -1,0 +1,32 @@
+# =============================================================================
+# requirements.txt
+# Dependencies for the Autonomous ReAct AI Agent
+# Install with:  pip install -r requirements.txt
+# =============================================================================
+
+# --- HTTP / API requests ---
+requests>=2.31.0          # Used for Ollama OpenAI-compatible endpoint and OSINT fallback
+
+# --- Web search ---
+ddgs>=9.0.0                 # Current DuckDuckGo search client (rename of duckduckgo_search)
+# Legacy fallback (optional): the search tool tries `ddgs` first, then falls
+# back to `duckduckgo_search` if `ddgs` is not installed.
+# duckduckgo-search>=4.1.1   # deprecated; use `ddgs` instead
+
+# --- Config parsing ---
+pyyaml>=6.0               # config.yaml loading
+
+# --- Security toolkit ---
+scapy>=2.5.0              # Packet capture / network analysis (analyze_packets)
+shodan>=1.31.0            # Optional OSINT lookups (requires API key in config)
+
+# --- Note on system-level security tools ---
+# The following external CLIs are invoked via subprocess and are NOT pip packages.
+# They must be installed on the host OS:
+#   nmap      -> https://nmap.org/download        (apt install nmap / brew install nmap)
+#   sqlmap    -> https://sqlmap.org               (apt install sqlmap / git clone)
+#   gobuster  -> https://github.com/OJ/gobuster   (apt install gobuster)
+#   nikto     -> https://github.com/sullo/nikto   (apt install nikto)
+# Scapy additionally requires libpcap for live capture:
+#   apt install libpcap-dev  (Debian/Ubuntu)
+#   brew install libpcap     (macOS)

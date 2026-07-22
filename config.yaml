@@ -1,0 +1,13 @@
+llm:
+  endpoint: "http://127.0.0.1:11434/v1/chat/completions"
+  model: "llama3.2:1b"
+  timeout: 120
+
+agent:
+  max_iterations: 10
+
+memory:
+  window_turns: 20
+
+filesystem:
+  sandbox_dir: "./agent_workspace"
