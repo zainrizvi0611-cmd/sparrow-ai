@@ -31,3 +31,6 @@ shodan>=1.31.0            # Optional OSINT lookups (requires API key in config)
 #   apt install libpcap-dev  (Debian/Ubuntu)
 #   brew install libpcap     (macOS)
 gunicorn
+flask
+gunicorn
+requests
