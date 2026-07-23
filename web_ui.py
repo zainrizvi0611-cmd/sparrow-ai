@@ -4,20 +4,40 @@ from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
 
-# ---------- API Keys (From Render Environment Variables) ----------
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
-FISH_API_KEY = os.environ.get("FISH_API_KEY")
-JACK_SPARROW_VOICE_ID = os.environ.get("JACK_SPARROW_VOICE_ID")
 
 def llm_chat(query):
     if not GROQ_API_KEY:
         return "GROQ_API_KEY not set. Please configure it in Render environment variables."
+    
     url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
-    payload = {"model": "llama3-8b-8192", "messages": [{"role": "user", "content": query}]}
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": "llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": query}],
+        "temperature": 0.7
+    }
+    
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=30)
-        return response.json()["choices"][0]["message"]["content"]
+        data = response.json()
+        
+        # Debug: Print full response to Render logs
+        print(f"Status: {response.status_code}")
+        print(f"Response: {data}")
+        
+        if response.status_code == 200:
+            # Check if 'choices' exists
+            if "choices" in data and len(data["choices"]) > 0:
+                return data["choices"][0]["message"]["content"]
+            else:
+                return f"Unexpected response structure: {data}"
+        else:
+            error_msg = data.get('error', {}).get('message', 'Unknown error')
+            return f"API Error ({response.status_code}): {error_msg}"
     except Exception as e:
         return f"LLM Error: {e}"
 
