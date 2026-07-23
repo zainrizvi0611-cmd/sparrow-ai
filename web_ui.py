@@ -7,14 +7,11 @@ from flask_session import Session
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "SparrowAI@2026")
 
-# ---------- Session Config ----------
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# ---------- OAuth Setup ----------
 oauth = OAuth(app)
 
-# Google OAuth
 google = oauth.register(
     name='google',
     client_id=os.environ.get("GOOGLE_CLIENT_ID"),
@@ -23,7 +20,6 @@ google = oauth.register(
     client_kwargs={'scope': 'openid email profile'}
 )
 
-# ---------- Groq LLM ----------
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 def llm_chat(query):
@@ -31,22 +27,16 @@ def llm_chat(query):
         return "GROQ_API_KEY not set."
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
-    payload = {
-        "model": "llama-3.3-70b-versatile",
-        "messages": [{"role": "user", "content": query}],
-        "temperature": 0.7
-    }
+    payload = {"model": "llama-3.3-70b-versatile", "messages": [{"role": "user", "content": query}], "temperature": 0.7}
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=30)
         data = response.json()
         if response.status_code == 200:
             return data["choices"][0]["message"]["content"]
-        else:
-            return f"API Error: {data.get('error', {}).get('message', 'Unknown error')}"
+        return f"API Error: {data.get('error', {}).get('message', 'Unknown error')}"
     except Exception as e:
         return f"LLM Error: {e}"
 
-# ---------- Web UI Template ----------
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
@@ -79,8 +69,6 @@ HTML_TEMPLATE = """
 <div class="container">
     <div class="header">🏴‍☠️ Sparrow AI</div>
     <div class="sub-header">Created by <a href="https://instagram.com/zainrizvi0611" target="_blank">@zainrizvi0611</a></div>
-
-    <!-- Login / Profile Area -->
     <div class="login-area">
         {% if session.user %}
             <div class="profile">
@@ -92,7 +80,6 @@ HTML_TEMPLATE = """
             <a href="/login/google">🔑 Google Login</a>
         {% endif %}
     </div>
-
     <div class="chat-box" id="chatBox">
         <div class="msg agent">Ahoy! Captain Jack Sparrow's AI at your service. Ask me anything.</div>
     </div>
@@ -146,14 +133,12 @@ HTML_TEMPLATE = """
 </html>
 """
 
-# ---------- Routes ----------
 @app.route('/')
 def index():
     return render_template_string(HTML_TEMPLATE)
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    # Require login to chat
     if not session.get('user'):
         return jsonify({'response': 'Please login first.'})
     data = request.get_json()
@@ -166,7 +151,6 @@ def chat():
     except Exception as e:
         return jsonify({'response': f"Error: {e}"})
 
-# ---------- Google Login ----------
 @app.route('/login/google')
 def login_google():
     redirect_uri = url_for('authorize_google', _external=True)
@@ -184,7 +168,6 @@ def authorize_google():
     }
     return redirect('/')
 
-# ---------- Logout ----------
 @app.route('/logout')
 def logout():
     session.pop('user', None)
