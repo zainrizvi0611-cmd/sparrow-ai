@@ -1,25 +1,8 @@
 import os
 import requests
-from flask import Flask, request, jsonify, render_template_string, session, redirect, url_for
-from authlib.integrations.flask_client import OAuth
-from flask_session import Session
+from flask import Flask, request, jsonify, render_template_string
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "SparrowAI@2026")
-
-app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
-
-oauth = OAuth(app)
-
-google = oauth.register(
-    name='google',
-    client_id=os.environ.get("GOOGLE_CLIENT_ID"),
-    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET"),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid email profile'}
-)
-
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 
 def llm_chat(query):
@@ -56,30 +39,12 @@ HTML_TEMPLATE = """
         .input-area input { flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #30363d; background: #0d1117; color: white; outline: none; }
         .input-area button { padding: 12px 25px; border-radius: 30px; border: none; background: #1f6feb; color: white; font-weight: bold; cursor: pointer; }
         .footer { text-align: center; font-size: 12px; color: #484f58; margin-top: 10px; }
-        .login-area { text-align: center; margin-bottom: 15px; }
-        .login-area a { display: inline-block; margin: 5px 10px; padding: 10px 20px; background: #21262d; border: 1px solid #30363d; border-radius: 30px; color: #e6edf3; text-decoration: none; }
-        .login-area a:hover { background: #30363d; }
-        .profile { text-align: center; font-size: 14px; color: #8b949e; margin-bottom: 15px; }
-        .profile img { width: 40px; height: 40px; border-radius: 50%; vertical-align: middle; margin-right: 10px; }
-        .profile a { color: #ff7f0e; text-decoration: none; }
-        .btn-logout { background: #21262d; border: 1px solid #30363d; color: #e6edf3; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">🏴‍☠️ Sparrow AI</div>
     <div class="sub-header">Created by <a href="https://instagram.com/zainrizvi0611" target="_blank">@zainrizvi0611</a></div>
-    <div class="login-area">
-        {% if session.user %}
-            <div class="profile">
-                <img src="{{ session.user.avatar }}" alt="Avatar">
-                <strong>{{ session.user.name }}</strong> ({{ session.user.email }})
-                <a href="/logout" class="btn-logout">Logout</a>
-            </div>
-        {% else %}
-            <a href="/login/google">🔑 Google Login</a>
-        {% endif %}
-    </div>
     <div class="chat-box" id="chatBox">
         <div class="msg agent">Ahoy! Captain Jack Sparrow's AI at your service. Ask me anything.</div>
     </div>
@@ -139,8 +104,6 @@ def index():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    if not session.get('user'):
-        return jsonify({'response': 'Please login first.'})
     data = request.get_json()
     query = data.get('query', '')
     if not query:
@@ -150,28 +113,6 @@ def chat():
         return jsonify({'response': response})
     except Exception as e:
         return jsonify({'response': f"Error: {e}"})
-
-@app.route('/login/google')
-def login_google():
-    redirect_uri = url_for('authorize_google', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-@app.route('/auth/google')
-def authorize_google():
-    token = google.authorize_access_token()
-    user_info = google.parse_id_token(token)
-    session['user'] = {
-        'name': user_info.get('name'),
-        'email': user_info.get('email'),
-        'avatar': user_info.get('picture'),
-        'provider': 'Google'
-    }
-    return redirect('/')
-
-@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    return redirect('/')
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
